@@ -1,0 +1,21 @@
+  parameters:
+  - name: environment
+    type: string
+  - name: appName
+    type: string
+  - name: deploymentName
+    type: string
+
+  jobs:
+  - template: /.azuredevops/pipeline-templates/jobs.deployInfra.yml
+    parameters:
+      appName: ${{ parameters.appName }}
+      environment: ${{ parameters.environment }}
+      templateFilePath: $(Pipeline.Workspace)/$(artifactName)/main.bicep
+      templateParameterFilePath: $(Build.SourcesDirectory)/infra/parameters.${{ parameters.environment }}.json
+      deploymentName: ${{ parameters.deploymentName }}
+
+  - template: /.azuredevops/pipeline-templates/jobs.deployFunctionApp.yml
+    parameters:
+      functionAppName: func-todo-az04-${{ parameters.environment }}-ause
+      package: '$(Pipeline.Workspace)/ToDoApp/$(buildConfiguration)/*.zip'

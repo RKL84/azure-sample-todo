@@ -1,0 +1,69 @@
+variables:
+  ###########################################################################################################################
+  ################################################## Common Variables #######################################################
+  ###########################################################################################################################
+
+  # Enable or disable CARMLs CI telemetry tracking. Note: This tracks the number of deployments only.
+  # See: https://github.com/Azure/ResourceModules/wiki/The%20library%20-%20Module%20design#telemetry
+  enableDefaultTelemetry: true
+
+  ########################
+  ##   Token settings   ##
+  ########################
+
+  # the 'localToken_' prefix will be removed from the key name when the pipelines run.
+  # e.g. if you have a token in your parameter file as <<customKey>>, then the token defined in this file looks like "localToken_customKey": 'value'
+  localToken_namePrefix: 'az411' # A 3-5 character length unique string, included in the resources names (e.g. 'cntso'). Used for local module testing and pipelines.
+
+  # this determines the starting prefix and ending suffix of the token in your file.
+  tokenPrefix: '<<'
+  tokenSuffix: '>>'
+
+  ########################
+  ##   Agent settings   ##
+  ########################
+
+  vmImage: 'ubuntu-latest' # Use this for Microsoft-hosted agents
+  poolName: '' # Use this for self-hosted agents
+
+  #######################################
+  ##   Common folders and file paths   ##
+  #######################################
+
+  moduleTestFilePath: 'utilities/staticValidation/module.tests.ps1'
+
+  ###########################################################################################################################
+  ################################################## Azure DevOps Only ######################################################
+  ###########################################################################################################################
+
+  ################
+  ##   Source   ##
+  ################
+
+  vstsOrganizationURI: '$(System.CollectionUri)' # The URI of the TFS collection or Azure DevOps organization. For example: https://dev.azure.com/fabrikam/.
+  vstsProject: '$(System.TeamProject)'
+  azureServiceConnection: "AzureSamples"
+  pipelineFunctionsPath: 'utilities/scripts'
+
+  #################################
+  #   Azure PowerShell Version   ##
+  #################################
+
+  # Should be set to 'latestVersion' unless there is an issue with the Az PowerShell modules.
+  # If a specific version needs to be set azurePowerShellVersion should be changed to 'OtherVersion'.
+  # NOTE: The strings are case sensitive and will not work unless properly entered.
+  azurePowerShellVersion: 'latestVersion'
+  # If using the latest version of the Az PowerShell modules, set `preferredAzurePowerShellVersion` to an empty string ''.
+  # If overriding the Az PowerShell module version, set to the version. Example: '4.4.0'
+  preferredAzurePowerShellVersion: ''
+#
+# NOTE: To override for just an individual template, just add the following to the
+#     templates pipeline.yml replacing '4.4.0' with the desired version:
+#
+#   - name: azurePowerShellVersion
+#     value: 'OtherVersion'
+#   - name: preferredAzurePowerShellVersion
+#     value: '4.4.0'
+#
+  releaseBranchName: 'main'
+  buildConfiguration: 'Release'

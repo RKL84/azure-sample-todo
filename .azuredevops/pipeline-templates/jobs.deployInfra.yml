@@ -1,0 +1,131 @@
+  parameters:
+  - name: templateFilePath
+    type: string
+  - name: templateParameterFilePath
+    type: string
+  - name: appName
+    type: string
+  - name: serviceConnection
+    type: string
+    default: '$(azureServiceConnection)'
+  - name: location
+    type: string
+    default: '$(location)'
+  - name: environment
+    type: string
+  - name: deploymentName
+    type: string
+  # - name: poolName
+  #   type: string
+  #   default: '$(poolName)'
+  # - name: vmImage
+  #   type: string
+  #   default: '$(vmImage)'
+  - name: defaultJobTimeoutInMinutes
+    default: 120
+  
+  jobs:
+
+  - deployment: DeployARM
+    displayName: Deploy
+    condition: succeeded()
+    environment: ${{ parameters.environment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+            fetchDepth: 0
+          - download: current
+            artifact: $(artifactName)
+            displayName: Download template
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: ${{ parameters.serviceConnection }}
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+               echo "using serviceconnection :" ${{ parameters.serviceConnection }}
+               az deployment sub create --location ${{ parameters.location }} --name ${{ parameters.deploymentName }} --template-file $(Pipeline.Workspace)/$(artifactName)/main.bicep --parameters appName=${{ parameters.appName }} environment=${{ parameters.environment }}
+
+          # - task: PowerShell@2
+          #   displayName: 'Setup agent'
+          #   inputs:
+          #     targetType: inline
+          #     pwsh: true
+          #     script: |
+          #       # Load used functions
+          #       . (Join-Path '$(System.DefaultWorkingDirectory)' 'utilities' 'scripts' 'Set-EnvironmentOnAgent.ps1')
+
+          #       # Define PS modules to install on the runner
+          #       $Modules = @(
+          #           @{ Name = 'Az.Accounts' },
+          #           @{ Name = 'Az.ContainerRegistry' },
+          #           @{ Name = 'Az.Resources' }
+          #       )
+
+          #       # Set agent up
+          #       Set-EnvironmentOnAgent -PSModules $Modules
+
+          # - task: AzureCLI@2
+          #   displayName: Create Resource Group
+          #   inputs:
+          #     azureSubscription: ${{ parameters.serviceConnection }}
+          #     scriptType: bash
+          #     scriptLocation: inlineScript
+          #     useGlobalConfig: false
+          #     inlineScript: |
+          #       az --version
+          #       az group create --name $(resourceGroupName) --location ${{ parameters.location }}
+
+          # - task: AzurePowerShell@5
+          #   displayName: Deploy ARM Template
+          #   inputs:
+          #     azureSubscription: ${{ parameters.serviceConnection }}
+          #     errorActionPreference: stop
+          #     azurePowerShellVersion: LatestVersion
+          #     ScriptType: InlineScript
+          #     inline: |
+          #       # Load used functions
+          #       . (Join-Path '$(System.DefaultWorkingDirectory)' '$(pipelineFunctionsPath)' 'New-TemplateDeployment.ps1')
+
+          #       # Fetching parameters
+          #       $location = '${{ parameters.location }}'
+          #       $resourceGroupName = '${{ parameters.resourceGroupName }}'
+          #       $templateFilePath = '${{ parameters.templateFilePath }}'
+          #       $parameterFilePath = '${{ parameters.templateParameterFilePath }}'
+
+          #       Write-Verbose 'Invoke task with' -Verbose
+          #       Write-Verbose ($functionInput | ConvertTo-Json | Out-String) -Verbose
+
+          #       $functionInput = @{
+          #           templateFilePath     = $templateFilePath
+          #           parameterFilePath    = $parameterFilePath
+          #           location             = $location
+          #           resourceGroupName    = $resourceGroupName
+          #           additionalParameters = @{}
+          #       }
+
+          #       $res = New-TemplateDeployment @functionInput -Verbose
+
+          #       # Get deployment name
+          #       $deploymentNames = $res.DeploymentNames | ConvertTo-Json -Compress
+          #       Write-Verbose "Deployment name(s) [$deploymentNames]" -Verbose
+          #       Write-Host "##vso[task.setvariable variable=deploymentNames]$deploymentNames"
+          #       Write-Host "##vso[task.setvariable variable=deploymentNames;isOutput=true]$deploymentNames"
+
+          #       # Populate further outputs
+          #       $deploymentOutputHashTable=@{}
+
+          #       foreach ($outputKey in $res.deploymentOutput.Keys) {
+          #         Write-Output ('##vso[task.setvariable variable={0}]{1}' -f $outputKey, $res.deploymentOutput[$outputKey].Value)
+          #         $deploymentOutputHashTable.add($outputKey,$res.deploymentOutput[$outputKey].Value)
+          #       }
+
+          #       $deploymentOutput = $deploymentOutputHashTable | ConvertTo-Json -Compress -Depth 100
+          #       Write-Verbose "Deployment output: $deploymentOutput" -Verbose
+
+          #       if ($res.ContainsKey('exception')) {
+          #         # Happens only if there is an exception
+          #         throw $res.exception
+          #       }

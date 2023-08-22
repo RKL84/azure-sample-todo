@@ -1,0 +1,29 @@
+trigger:
+- '*'
+parameters:
+  - name: resourceGroupNameToDelete
+    displayName: Resource Group Name to Delete
+    type: string
+    default: azshared-dev-rg
+
+variables:
+- template: vars/vars-global.yaml
+
+stages:
+  - stage: 'Cleanup'
+    displayName: 'Delete Resource Group'
+    jobs:
+    - job: CreateResourceGroup
+      displayName: Delete Resource Group
+      steps:
+      
+      - task: AzureCLI@2
+        displayName: Delete Resource Group
+        inputs:
+          azureSubscription: $(azureServiceConnection)
+          scriptType: bash
+          scriptLocation: inlineScript
+          useGlobalConfig: false
+          inlineScript: |
+            az --version
+            az group delete --name $(resourceGroupNameToDelete) --yes

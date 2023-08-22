@@ -1,0 +1,30 @@
+  parameters:
+  - name: functionAppName
+    type: string
+  - name: package
+    type: string
+  - name: serviceConnection
+    type: string
+    default: '$(azureServiceConnection)'
+
+  jobs:
+  - deployment: UploadFunctionAppCode
+    dependsOn: DeployARM
+    displayName: Upload Function App Code
+    pool:
+      vmImage: 'ubuntu-20.04'
+    condition: succeeded()
+    environment: dev
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+          - task: AzureFunctionApp@1
+            displayName: 'Azure App Service Deploy: function'
+            inputs:
+              azureSubscription: ${{ parameters.serviceConnection }}
+              appName: ${{ parameters.functionAppName}}
+              appType: 'functionApp'
+              package: '${{ parameters.package}}'
+              deploymentMethod: 'zipDeploy' 

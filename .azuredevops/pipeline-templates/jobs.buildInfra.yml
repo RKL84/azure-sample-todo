@@ -1,0 +1,38 @@
+  parameters:
+  - name: bicepTemplateFilePath
+    type: string
+  - name: templateParameterFilePath
+    type: string
+
+  jobs: 
+  - job: 'infra_build'
+    displayName: 'Build Infra Code'
+    steps:
+      - task: AzureCLI@2
+        name: BuildBicepModule
+        displayName: Build Bicep
+        inputs:
+          azureSubscription: $(azureServiceConnection)
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az bicep restore --file ${{ parameters.bicepTemplateFilePath}}
+            az bicep build --file ${{ parameters.bicepTemplateFilePath}} --outfile $(Build.ArtifactStagingDirectory)/main.json
+
+      # - task: AzureResourceManagerTemplateDeployment@3
+      #   name: RunPreflightValidation
+      #   displayName: Run preflight validation
+      #   inputs:
+      #     connectedServiceName: $(azureServiceConnection)
+      #     location: $(location)
+      #     deploymentMode: Validation
+      #     resourceGroupName: ${{ parameters.resourceGroupName }}
+      #     csmFile: ${{ parameters.bicepTemplateFilePath}}
+      #     csmParametersFile: ${{ parameters.templateParameterFilePath }}
+      #     overrideParameters: -appName $(appName)
+        
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: '$(Pipeline.Workspace)/s/infra'
+          artifact: $(artifactName)
+          publishLocation: 'pipeline'

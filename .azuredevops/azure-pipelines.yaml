@@ -1,0 +1,85 @@
+trigger:
+- '*'
+
+parameters:
+  - name: staticValidation
+    displayName: Execute static validation
+    type: boolean
+    default: false
+    
+variables:
+- template: vars/vars-global.yaml
+- template: vars/vars-settings.yaml   
+
+# schedules:
+# - cron: '0 3 * * *'
+#   displayName: 'Deploy every day at 3 A.M.'
+#   branches:
+#     include:
+#     - release
+#   always: false 
+
+stages:
+  - stage: 'Build'
+    displayName: 'Build'
+    variables:
+      - template: vars/vars-dev.yaml
+    jobs: 
+      - template: /.azuredevops/pipeline-templates/jobs.buildCode.yml
+      - template: /.azuredevops/pipeline-templates/jobs.buildInfra.yml
+        parameters:
+          bicepTemplateFilePath: $(Build.SourcesDirectory)/infra/main.bicep
+          templateParameterFilePath: $(Build.SourcesDirectory)/infra/parameters.dev.json
+
+  - stage: 'Validation'
+    displayName: Static validation
+    condition: eq('${{ parameters.staticValidation }}', 'True')
+    dependsOn: Build
+    jobs:
+      - template: /.azuredevops/pipeline-templates/jobs.validateTemplatePester.yml
+        parameters:
+          templateFilePath: $(Build.SourcesDirectory)/infra
+
+  - stage: 'Dev'
+    displayName: 'Deploy to the dev environment'
+    variables:          
+      - template: vars/vars-dev.yaml
+    dependsOn: Build
+    # condition: |
+    #   and
+    #   (
+    #     succeeded(),
+    #     eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
+    #   )
+
+    jobs:
+    - template: /.azuredevops/pipeline-templates/jobs.deploy.yml
+      parameters:
+        environment: 'dev'
+        appName: $(appName)
+        deploymentName: $(deploymentName)
+
+  # - stage: 'QA'
+  #   displayName: 'Deploy to the qa environment'
+  #   variables:          
+  #     - template: vars/vars-qa.yaml
+  #   dependsOn: Dev
+  #   jobs:
+  #   - template: /.azuredevops/pipeline-templates/jobs.deploy.yml
+  #     parameters:
+  #       environment: 'qa'
+  #       appName: $(appName)
+
+  # - stage: 'Prd'
+  #   displayName: 'Deploy to the prd environment'
+  #   variables:          
+  #     - template: vars/vars-prd.yaml
+  #   dependsOn: Build
+  #   condition: |
+  #     succeeded()
+
+  #   jobs:
+  #   - template: /.azuredevops/pipeline-templates/jobs.deploy.yml
+  #     parameters:
+  #       environment: 'prd'
+  #       appName: $(appName)
