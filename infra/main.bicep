@@ -111,16 +111,16 @@ module appServicePlan './app/asp.bicep' = {
   }
 }
 
-module apim './app/apim.bicep' = {
-  name: 'apim-Deployment'
-  scope: resourceGroup(apimRG.name)
-  params: {
-    location: location
-    naming: naming.outputs.names
-    tags: defaultTags
-    appInsightsName: shared.outputs.appInsightsName
-  }
-}
+// module apim './app/apim.bicep' = {
+//   name: 'apim-Deployment'
+//   scope: resourceGroup(apimRG.name)
+//   params: {
+//     location: location
+//     naming: naming.outputs.names
+//     tags: defaultTags
+//     appInsightsName: shared.outputs.appInsightsName
+//   }
+// }
 
 module api './app/api.bicep' = {
   name: 'api'
