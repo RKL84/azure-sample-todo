@@ -1,0 +1,49 @@
+  jobs: 
+  - job: 'dotnet_build'
+    displayName: 'Build Web App Code'
+    # pool:
+    #   vmImage: 'ubuntu-20.04'
+    #   demands:
+    #   - npm
+
+    variables:
+      dotnetSdkVersion: '6.x'
+
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET SDK $(dotnetSdkVersion)'
+      inputs:
+        version: '$(dotnetSdkVersion)'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore project dependencies'
+      inputs:
+        command: 'restore'
+        projects: '**/*.csproj'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build the project - $(buildConfiguration)'
+      inputs:
+        command: 'build'
+        arguments: '--no-restore --configuration $(buildConfiguration)'
+        projects: '**/*.csproj'
+
+    # - task: DotNetCoreCLI@2
+    #   displayName: 'Publish the project - $(buildConfiguration)'
+    #   inputs:
+    #     command: 'publish'
+    #     projects: '**/*.csproj'
+    #     publishWebProjects: false
+    #     arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+    #     zipAfterPublish: true
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish the project - $(buildConfiguration)'
+      inputs:
+        command: 'publish'
+        projects: '**/*.csproj'
+        publishWebProjects: true
+        arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+  
+    - publish: '$(Build.ArtifactStagingDirectory)'
+      artifact: WebApp

@@ -1,0 +1,29 @@
+  parameters:
+  - name: webAppName
+    type: string
+  - name: package
+    type: string
+  - name: serviceConnection
+    type: string
+    default: '$(azureServiceConnection)'
+
+  jobs:
+  - deployment: UploadWebAppCode
+    dependsOn: DeployARM
+    displayName: Upload Web App Code
+    pool:
+      vmImage: 'ubuntu-20.04'
+    condition: succeeded()
+    environment: dev
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+          - task: AzureWebApp@1
+            displayName: 'Azure App Service Deploy: webapp'
+            inputs:
+              azureSubscription: ${{ parameters.serviceConnection }}
+              appType: 'webAppLinux'
+              appName: ${{ parameters.webAppName}}
+              package: '${{ parameters.package}}'

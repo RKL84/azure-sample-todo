@@ -25,7 +25,7 @@ stages:
     variables:
       - template: vars/vars-dev.yaml
     jobs: 
-      - template: /.azuredevops/pipeline-templates/jobs.buildCode.yml
+      - template: /.azuredevops/pipeline-templates/jobs.buildWebAppCode.yml
       - template: /.azuredevops/pipeline-templates/jobs.buildInfra.yml
         parameters:
           bicepTemplateFilePath: $(Build.SourcesDirectory)/infra/main.bicep
