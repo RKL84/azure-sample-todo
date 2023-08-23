@@ -81,8 +81,8 @@ resource apimRG 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: defaultTags
 }
 
-module networking './networking.bicep' = {
-  name: 'networkingresources'
+module networking './app/networking.bicep' = {
+  name: 'networkingResources-Deployment'
   scope: resourceGroup(networkingRG.name)
   params: {
     location: location
@@ -92,7 +92,7 @@ module networking './networking.bicep' = {
 }
 
 module shared './shared/shared.bicep' = {
-  name: 'sharedresources-Deployment'
+  name: 'sharedResources-Deployment'
   scope: resourceGroup(sharedRG.name)
   params: {
     location: location
@@ -101,13 +101,24 @@ module shared './shared/shared.bicep' = {
   }
 }
 
-module appServicePlan './asp.bicep' = {
+module appServicePlan './app/asp.bicep' = {
   name: 'appservicePlan-Deployment'
   scope: resourceGroup(backendRG.name)
   params: {
     location: location
     naming: naming.outputs.names
     tags: defaultTags
+  }
+}
+
+module apim './app/apim.bicep' = {
+  name: 'apim-Deployment'
+  scope: resourceGroup(apimRG.name)
+  params: {
+    location: location
+    naming: naming.outputs.names
+    tags: defaultTags
+    appInsightsName: shared.outputs.appInsightsName
   }
 }
 
@@ -135,17 +146,6 @@ module apiKeyVaultAccess './core/security/keyvault-access.bicep' = {
   params: {
     keyVaultName: shared.outputs.keyVaultName
     principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
-  }
-}
-
-module apim './apim.bicep' = {
-  name: 'appservicePlan-Deployment'
-  scope: resourceGroup(apimRG.name)
-  params: {
-    location: location
-    naming: naming.outputs.names
-    tags: defaultTags
-    appInsightsName: shared.outputs.appInsightsName
   }
 }
 
@@ -185,8 +185,3 @@ output AZURE_KEY_VAULT_ENDPOINT string = shared.outputs.keyVaultUri
 output AZURE_KEY_VAULT_NAME string = shared.outputs.keyVaultName
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId
-// output SERVICE_API_ENDPOINTS array = useAPIM ? [ apimApi.outputs.SERVICE_API_URI, api.outputs.SERVICE_API_URI ]: []
-// output REACT_APP_API_BASE_URL string = useAPIM ? apimApi.outputs.SERVICE_API_URI : api.outputs.SERVICE_API_URI
-// output REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING string = monitoring.outputs.applicationInsightsConnectionString
-// output REACT_APP_WEB_BASE_URL string = web.outputs.SERVICE_WEB_URI
-// output USE_APIM bool = useAPIM

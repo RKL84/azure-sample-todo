@@ -31,7 +31,7 @@ var resourceNames = {
   apiManagement: naming.apiManagement.name
 }
 
-module apim './core/gateway/apim.bicep' = {
+module apim '../core/gateway/apim.bicep' = {
   name: 'appservicePlan-Deployment'
   params: {
     name: resourceNames.apiManagement
