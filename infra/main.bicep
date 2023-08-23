@@ -123,7 +123,7 @@ module appServicePlan './app/asp.bicep' = {
 // }
 
 module api './app/api.bicep' = {
-  name: 'api'
+  name: 'apim-Deployment'
   scope: resourceGroup(backendRG.name)
   params: {
     location: location

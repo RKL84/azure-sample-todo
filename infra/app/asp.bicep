@@ -16,7 +16,7 @@ var resourceNames = {
 }
 
 module appServicePlan '../core/host/appserviceplan.bicep' = {
-  name: 'appservicePlan-Deployment'
+  name: '${resourceNames.appServicePlan}-app-module'
   params: {
     name: resourceNames.appServicePlan
     location: location
