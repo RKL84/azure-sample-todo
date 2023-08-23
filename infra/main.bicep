@@ -134,9 +134,9 @@ module api './app/api.bicep' = {
     appServicePlanId: appServicePlan.outputs.appServicePlanId
     keyVaultName: shared.outputs.keyVaultName
     // allowedOrigins: [ web.outputs.SERVICE_WEB_URI ]
-    // appSettings: {
-    //   AZURE_SQL_CONNECTION_STRING_KEY: sqlServer.outputs.connectionStringKey
-    // }
+    appSettings: {
+      TEST: 'TEST'
+    }
   }
 }
 
