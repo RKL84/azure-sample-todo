@@ -18,4 +18,4 @@
   - template: /.azuredevops/pipeline-templates/jobs.deployFunctionApp.yml
     parameters:
       functionAppName: func-todo-az04-${{ parameters.environment }}-ause
-      package: '$(Pipeline.Workspace)/ToDoApp/$(buildConfiguration)/*.zip'
+      package: '$(Pipeline.Workspace)/api/$(buildConfiguration)/*.zip'
