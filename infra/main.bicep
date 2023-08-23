@@ -129,6 +129,7 @@ module api './app/api.bicep' = {
     location: location
     naming: naming.outputs.names
     tags: defaultTags
+    sharedResourceGroupName: sharedResourceGroupName
     applicationInsightsName: shared.outputs.appInsightsName
     appServicePlanId: appServicePlan.outputs.appServicePlanId
     keyVaultName: shared.outputs.keyVaultName

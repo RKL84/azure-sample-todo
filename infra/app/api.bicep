@@ -18,6 +18,7 @@ var todoAppServiceName = replace(appServiceNameWithPlaceholder, placeholder, 'to
 param allowedOrigins array = []
 param appCommandLine string = ''
 param applicationInsightsName string = ''
+param sharedResourceGroupName string
 param appServicePlanId string
 @secure()
 param appSettings object = {}
@@ -33,6 +34,7 @@ module api '../core/host/appservice.bicep' = {
     allowedOrigins: allowedOrigins
     appCommandLine: appCommandLine
     applicationInsightsName: applicationInsightsName
+    sharedResourceGroupName: sharedResourceGroupName
     appServicePlanId: appServicePlanId
     appSettings: appSettings
     keyVaultName: keyVaultName
