@@ -25,49 +25,61 @@ param skuName string = 'Developer'
 param capacity int = 1
 
 param appInsightsName string
-param appInsightsId string
-param appInsightsInstrumentationKey string
 
 // Variables 
 var resourceNames = {
   apiManagement: naming.apiManagement.name
 }
 
-resource apimName_resource 'Microsoft.ApiManagement/service@2020-12-01' = {
-  name: resourceNames.apiManagement
-  location: location
-  sku: {
-    capacity: capacity
-    name: skuName
-  }
-  properties: {
+module apim './core/gateway/apim.bicep' = {
+  name: 'appservicePlan-Deployment'
+  params: {
+    name: resourceNames.apiManagement
+    location: location
+    tags: tags
+    applicationInsightsName: appInsightsName
     publisherEmail: publisherEmail
     publisherName: publisherName
-  }
-  tags: tags
-}
-
-resource apimName_appInsightsLogger_resource 'Microsoft.ApiManagement/service/loggers@2019-01-01' = {
-  parent: apimName_resource
-  name: appInsightsName
-  properties: {
-    loggerType: 'applicationInsights'
-    resourceId: appInsightsId
-    credentials: {
-      instrumentationKey: appInsightsInstrumentationKey
-    }
+    sku: skuName
+    skuCount: capacity
   }
 }
 
-resource apimName_applicationinsights 'Microsoft.ApiManagement/service/diagnostics@2019-01-01' = {
-  parent: apimName_resource
-  name: 'applicationinsights'
-  properties: {
-    loggerId: apimName_appInsightsLogger_resource.id
-    alwaysLog: 'allErrors'
-    sampling: {
-      percentage: 100
-      samplingType: 'fixed'
-    }
-  }
-}
+// resource apimName_resource 'Microsoft.ApiManagement/service@2020-12-01' = {
+//   name: resourceNames.apiManagement
+//   location: location
+//   sku: {
+//     capacity: capacity
+//     name: skuName
+//   }
+//   properties: {
+//     publisherEmail: publisherEmail
+//     publisherName: publisherName
+//   }
+//   tags: tags
+// }
+
+// resource apimName_appInsightsLogger_resource 'Microsoft.ApiManagement/service/loggers@2019-01-01' = {
+//   parent: apimName_resource
+//   name: appInsightsName
+//   properties: {
+//     loggerType: 'applicationInsights'
+//     resourceId: appInsightsId
+//     credentials: {
+//       instrumentationKey: appInsightsInstrumentationKey
+//     }
+//   }
+// }
+
+// resource apimName_applicationinsights 'Microsoft.ApiManagement/service/diagnostics@2019-01-01' = {
+//   parent: apimName_resource
+//   name: 'applicationinsights'
+//   properties: {
+//     loggerId: apimName_appInsightsLogger_resource.id
+//     alwaysLog: 'allErrors'
+//     sampling: {
+//       percentage: 100
+//       samplingType: 'fixed'
+//     }
+//   }
+// }

@@ -61,4 +61,5 @@ output appInsightsName string = appInsights.outputs.appInsightsName
 output appInsightsId string = appInsights.outputs.appInsightsId
 output appInsightsInstrumentationKey string = appInsights.outputs.appInsightsInstrumentationKey
 output keyVaultName string = keyVaultModule.outputs.keyVaultName
+output keyVaultUri string = keyVaultModule.outputs.keyVaultUri
 output serviceBusNamespace string = serviceBusNamespace.outputs.serviceBusNamespaceName

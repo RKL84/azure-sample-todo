@@ -138,16 +138,30 @@ module apiKeyVaultAccess './core/security/keyvault-access.bicep' = {
   }
 }
 
-// module apim './apim.bicep' = {
-//   name: 'appservicePlan-Deployment'
-//   scope: resourceGroup(apimRG.name)
+module apim './apim.bicep' = {
+  name: 'appservicePlan-Deployment'
+  scope: resourceGroup(apimRG.name)
+  params: {
+    location: location
+    naming: naming.outputs.names
+    tags: defaultTags
+    appInsightsName: shared.outputs.appInsightsName
+  }
+}
+
+// // Configures the API in the Azure API Management (APIM) service
+// module apimApi './app/apim-api.bicep' = if (useAPIM) {
+//   name: 'apim-api-deployment'
+//   scope: rg
 //   params: {
-//     location: location
-//     naming: naming.outputs.names
-//     tags: defaultTags
-//     appInsightsName: shared.outputs.appInsightsName
-//     appInsightsId: shared.outputs.appInsightsId
-//     appInsightsInstrumentationKey: shared.outputs.appInsightsInstrumentationKey
+//     name: useAPIM ? apim.outputs.apimServiceName : ''
+//     apiName: 'todo-api'
+//     apiDisplayName: 'Simple Todo API'
+//     apiDescription: 'This is a simple Todo API'
+//     apiPath: 'todo'
+//     webFrontendUrl: web.outputs.SERVICE_WEB_URI
+//     apiBackendUrl: api.outputs.SERVICE_API_URI
+//     apiAppName: api.outputs.SERVICE_API_NAME
 //   }
 // }
 
@@ -165,3 +179,14 @@ module apiKeyVaultAccess './core/security/keyvault-access.bicep' = {
 //     sharedResourceGroupName: sharedResourceGroupName
 //   }
 // }
+
+output APPLICATIONINSIGHTS_CONNECTION_STRING string = shared.outputs.appInsightsConnectionString
+output AZURE_KEY_VAULT_ENDPOINT string = shared.outputs.keyVaultUri
+output AZURE_KEY_VAULT_NAME string = shared.outputs.keyVaultName
+output AZURE_LOCATION string = location
+output AZURE_TENANT_ID string = tenant().tenantId
+// output SERVICE_API_ENDPOINTS array = useAPIM ? [ apimApi.outputs.SERVICE_API_URI, api.outputs.SERVICE_API_URI ]: []
+// output REACT_APP_API_BASE_URL string = useAPIM ? apimApi.outputs.SERVICE_API_URI : api.outputs.SERVICE_API_URI
+// output REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING string = monitoring.outputs.applicationInsightsConnectionString
+// output REACT_APP_WEB_BASE_URL string = web.outputs.SERVICE_WEB_URI
+// output USE_APIM bool = useAPIM

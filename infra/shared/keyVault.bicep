@@ -25,3 +25,4 @@ resource keyVaultModule 'Microsoft.KeyVault/vaults@2019-09-01' = {
 }
 
 output keyVaultName string = keyVaultModule.name
+output keyVaultUri string = keyVaultModule.properties.vaultUri
