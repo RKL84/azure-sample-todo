@@ -15,17 +15,20 @@ var resourceNames = {
   appServicePlan: naming.appServicePlan.name
 }
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' = {
-  name: resourceNames.appServicePlan
-  location: location
-  sku: {
-    name: 'B1'
-    // name: 'Y1'
-    // tier: 'Dynamic'
+module appServicePlan '../core/host/appserviceplan.bicep' = {
+  name: 'appservicePlan-Deployment'
+  params: {
+    name: resourceNames.appServicePlan
+    location: location
+    tags: tags
+    sku: {
+      name: 'B1'
+      //     // name: 'Y1'
+      //     // tier: 'Dynamic'
+    }
   }
-  tags: tags
 }
 
 // Outputs
-output appServicePlanName string = appServicePlan.name
-output appServicePlanId string = appServicePlan.id
+output appServicePlanName string = appServicePlan.outputs.name
+output appServicePlanId string = appServicePlan.outputs.id

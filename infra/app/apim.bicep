@@ -32,7 +32,7 @@ var resourceNames = {
 }
 
 module apim '../core/gateway/apim.bicep' = {
-  name: 'appservicePlan-Deployment'
+  name: 'apim-Deployment'
   params: {
     name: resourceNames.apiManagement
     location: location
