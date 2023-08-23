@@ -43,7 +43,7 @@
         command: 'publish'
         projects: '**/*.csproj'
         publishWebProjects: true
-        arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+        arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)/api'
   
     - publish: '$(Build.ArtifactStagingDirectory)'
       artifact: WebApp

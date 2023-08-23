@@ -18,7 +18,7 @@
   - template: /.azuredevops/pipeline-templates/jobs.deployWebApp.yml
     parameters:
       webAppName: app-todo-az04-${{ parameters.environment }}
-      package: '$(Pipeline.Workspace)/$(buildConfiguration)/*.zip'
+      package: '$(Pipeline.Workspace)/$(buildConfiguration)/api/*.zip'
 
   # - template: /.azuredevops/pipeline-templates/jobs.deployFunctionApp.yml
   #   parameters:
