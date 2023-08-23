@@ -19,7 +19,7 @@
       runOnce:
         deploy:
           steps:
-          - download: current
+          - download: FunctionApp
           - task: AzureFunctionApp@1
             displayName: 'Azure App Service Deploy: function'
             inputs:
