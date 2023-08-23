@@ -21,6 +21,12 @@ param location string = deployment().location
 @description('Optional. The tags to be assigned to the created resources.')
 param tags object = {}
 
+// @description('Flag to use Azure API Management to mediate the calls between the Web frontend and the backend API')
+// param useAPIM bool = false
+
+// @description('Id of the user or app to assign application roles')
+// param principalId string = ''
+
 var defaultTags = union({
     application: appName
     environment: environment
@@ -35,7 +41,7 @@ var apimResourceGroupName = 'rg-apim-${resourceSuffix}'
 var defaultSuffixes = [
   appName
   environment
-  '**location**'
+  // '**location**'
 ]
 var namingSuffixes = empty(numericSuffix) ? defaultSuffixes : concat(defaultSuffixes, [
     numericSuffix
@@ -105,30 +111,57 @@ module appServicePlan './asp.bicep' = {
   }
 }
 
-module apim './apim.bicep' = {
-  name: 'appservicePlan-Deployment'
-  scope: resourceGroup(apimRG.name)
-  params: {
-    location: location
-    naming: naming.outputs.names
-    tags: defaultTags
-    appInsightsName: shared.outputs.appInsightsName
-    appInsightsId: shared.outputs.appInsightsId
-    appInsightsInstrumentationKey: shared.outputs.appInsightsInstrumentationKey
-  }
-}
-
-module backend './backend.bicep' = {
-  name: 'backend-Deployment'
+module api './app/api.bicep' = {
+  name: 'api'
   scope: resourceGroup(backendRG.name)
   params: {
     location: location
     naming: naming.outputs.names
     tags: defaultTags
-    logAnalyticsWorkspaceName: shared.outputs.logAnalyticsWorkspaceName
-    appInsightsName: shared.outputs.appInsightsName
-    appServicePlanName: appServicePlan.outputs.appServicePlanName
-    storageAccountName: shared.outputs.storageAccountName
-    sharedResourceGroupName: sharedResourceGroupName
+    applicationInsightsName: shared.outputs.appInsightsName
+    appServicePlanId: appServicePlan.outputs.appServicePlanId
+    keyVaultName: shared.outputs.keyVaultName
+    // allowedOrigins: [ web.outputs.SERVICE_WEB_URI ]
+    // appSettings: {
+    //   AZURE_SQL_CONNECTION_STRING_KEY: sqlServer.outputs.connectionStringKey
+    // }
   }
 }
+
+// Give the API access to KeyVault
+module apiKeyVaultAccess './core/security/keyvault-access.bicep' = {
+  name: 'api-keyvault-access'
+  scope: resourceGroup(sharedRG.name)
+  params: {
+    keyVaultName: shared.outputs.keyVaultName
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+  }
+}
+
+// module apim './apim.bicep' = {
+//   name: 'appservicePlan-Deployment'
+//   scope: resourceGroup(apimRG.name)
+//   params: {
+//     location: location
+//     naming: naming.outputs.names
+//     tags: defaultTags
+//     appInsightsName: shared.outputs.appInsightsName
+//     appInsightsId: shared.outputs.appInsightsId
+//     appInsightsInstrumentationKey: shared.outputs.appInsightsInstrumentationKey
+//   }
+// }
+
+// module backend './backend.bicep' = {
+//   name: 'backend-Deployment'
+//   scope: resourceGroup(backendRG.name)
+//   params: {
+//     location: location
+//     naming: naming.outputs.names
+//     tags: defaultTags
+//     logAnalyticsWorkspaceName: shared.outputs.logAnalyticsWorkspaceName
+//     appInsightsName: shared.outputs.appInsightsName
+//     appServicePlanName: appServicePlan.outputs.appServicePlanName
+//     storageAccountName: shared.outputs.storageAccountName
+//     sharedResourceGroupName: sharedResourceGroupName
+//   }
+// }
