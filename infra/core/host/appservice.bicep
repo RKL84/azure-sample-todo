@@ -109,6 +109,7 @@ module config 'appservice-appsettings.bicep' = if (!empty(appSettings)) {
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = if (!(empty(keyVaultName))) {
   name: keyVaultName
+  scope: resourceGroup(sharedResourceGroupName)
 }
 
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing = if (!empty(applicationInsightsName)) {
